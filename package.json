@@ -4,15 +4,23 @@
   "description": "Elm template",
   "scripts": {
     "test": "elm-test",
-    "start": "parcel serve src/index.html"
+    "watch": "parcel watch -t node --bundle-node-modules src/index.ts",
+    "start": "node ./dist/index.js",
+    "build": "parcel build -t node --bundle-node-modules src/index.ts"
   },
   "keywords": [],
   "author": "uzimaru0000",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^12.12.16",
+    "@types/readline-sync": "^1.4.3",
     "elm-hot": "^1.1.4",
     "node-elm-compiler": "^5.0.4",
     "parcel": "^1.12.4",
     "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "readline-sync": "^1.4.10",
+    "xhr2": "^0.2.0"
   }
 }
