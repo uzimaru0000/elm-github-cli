@@ -1,0 +1,18 @@
+{
+  "name": "Elm-template",
+  "version": "1.0.0",
+  "description": "Elm template",
+  "scripts": {
+    "test": "elm-test",
+    "start": "parcel serve src/index.html"
+  },
+  "keywords": [],
+  "author": "uzimaru0000",
+  "license": "MIT",
+  "devDependencies": {
+    "elm-hot": "^1.1.4",
+    "node-elm-compiler": "^5.0.4",
+    "parcel": "^1.12.4",
+    "typescript": "^3.7.2"
+  }
+}
