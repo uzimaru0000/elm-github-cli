@@ -1,32 +1,46 @@
 // @ts-ignore
 global.XMLHttpRequest = require('xhr2');
 
-// @ts-ignore
 import { Elm } from './Elm/Main.elm'
-import readlineSync from 'readline-sync'
+import readline from 'readline';
 
 const args = process.argv.slice(2);
 
+readline.emitKeypressEvents(process.stdin);
+const reader = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+});
+
 const app = Elm.Main.init({ flags: args });
 
-app.ports.stdout.subscribe(console.log);
-app.ports.requestInput.subscribe(([outerMsg, msg]: [string, string]) => {
-    const ans = readlineSync.question(msg);
-    app.ports.input.send({
-        msg: outerMsg,
-        input: ans
-    });
+app.ports.output.subscribe(async str => {
+    process.stdout.write(str);
+    try {
+        app.ports.keyDown.send(await keyDown());
+    } catch {
+        reader.close();
+        process.exit();
+    }
 });
 
-app.ports.requestKeyDown.subscribe(() => {
-    const key = readlineSync.keyIn('', {
-        hideEchoBack: true,
-        mask: ''
-    });
-
-    app.ports.keyDown.send(key);
-});
-
-app.ports.exit.subscribe((code: number) => {
+app.ports.exitWithMsg.subscribe(([code, msg]) => {
+    process.stdout.write(msg);
     process.exit(code);
 });
+
+const keyDown = () =>
+    new Promise<Elm.Main.KeyEvent>((res, rej) => {
+        process.stdin.setRawMode(true);
+        reader.resume();
+        process.stdin.once('keypress', (_, ev) => {
+            if (ev.ctrl && ev.name === 'c') {
+                rej();
+                return;
+            }
+
+            res(ev);
+            reader.pause();
+        });
+    });
