@@ -13,6 +13,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^12.12.16",
+    "@types/prompts": "^2.0.3",
     "@types/readline-sync": "^1.4.3",
     "elm-hot": "^1.1.4",
     "node-elm-compiler": "^5.0.4",
@@ -20,6 +21,7 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "prompts": "^2.3.1",
     "readline-sync": "^1.4.10",
     "xhr2": "^0.2.0"
   }
