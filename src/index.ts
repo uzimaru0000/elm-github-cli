@@ -10,8 +10,16 @@ const app = Elm.Main.init({ flags: args });
 
 app.ports.output.subscribe(async ([str, opts]) => {
   process.stdout.write(str);
-  const { value } = await prompts(opts);
-  app.ports.input.send(value);
+  try {
+    const { value } = await prompts(opts);
+    if (value === undefined) {
+      process.exit(0);
+    } else {
+      app.ports.input.send(value);
+    }
+  } catch (e) {
+    process.exit(1);
+  }
 });
 
 app.ports.exitWithMsg.subscribe(([code, msg]) => {
