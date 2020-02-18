@@ -1,5 +1,7 @@
 module Prompts exposing (..)
 
+import Json.Encode as JE
+
 
 type PromptType
     = Text
@@ -11,7 +13,7 @@ type PromptType
     | Toggle
     | Select
     | MultiSelect
-    | Autocomplete
+    | AutoComplete
     | Date
 
 
@@ -45,8 +47,24 @@ toString type_ =
         MultiSelect ->
             "multiselect"
 
-        Autocomplete ->
+        AutoComplete ->
             "autocomplete"
 
         Date ->
             "date"
+
+
+type alias Item =
+    { title : String
+    , value : String
+    , description : String
+    }
+
+
+itemEncoder : Item -> JE.Value
+itemEncoder { title, value, description } =
+    JE.object
+        [ ( "title", JE.string title )
+        , ( "value", JE.string value )
+        , ( "description", JE.string description )
+        ]

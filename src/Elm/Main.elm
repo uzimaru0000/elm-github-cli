@@ -6,7 +6,8 @@ import GitHub
 import Http
 import Json.Decode as JD
 import Json.Encode as JE
-import Prompts.Select as Select
+import Prompts
+import Prompts.AutoComplete as AutoComplete
 import Prompts.Text as Text
 
 
@@ -69,7 +70,7 @@ update msg model =
                 |> Maybe.withDefault
                     (repos
                         |> List.map repo2Item
-                        |> Select.option "Select Repository : "
+                        |> AutoComplete.option "Select Repository : "
                         |> output
                     )
             )
@@ -88,7 +89,7 @@ update msg model =
             )
 
 
-repo2Item : GitHub.Repository -> Select.Item
+repo2Item : GitHub.Repository -> Prompts.Item
 repo2Item repo =
     { title = repo.name
     , value = repo.htmlUrl
