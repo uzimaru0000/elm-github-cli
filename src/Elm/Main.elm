@@ -6,7 +6,6 @@ import GitHub
 import Http
 import Json.Decode as JD
 import Json.Encode as JE
-import Parser
 import Prompts.Select as Select
 import Prompts.Text as Text
 

@@ -1,7 +1,5 @@
 module Prompts exposing (..)
 
-import Json.Encode as JE
-
 
 type PromptType
     = Text
