@@ -4,12 +4,11 @@ global.XMLHttpRequest = require('xhr2');
 import { Elm } from './Elm/Main.elm';
 import prompts from 'prompts';
 
-const args = process.argv.slice(2);
+const args = process.argv.slice(2).join();
 
 const app = Elm.Main.init({ flags: args });
 
-app.ports.output.subscribe(async ([str, opts]) => {
-  process.stdout.write(str);
+app.ports.output.subscribe(async opts => {
   try {
     const { value } = await prompts(opts);
     if (value === undefined) {
@@ -23,6 +22,6 @@ app.ports.output.subscribe(async ([str, opts]) => {
 });
 
 app.ports.exitWithMsg.subscribe(([code, msg]) => {
-  process.stdout.write(msg);
+  console.log(msg);
   process.exit(code);
 });

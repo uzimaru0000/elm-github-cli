@@ -17,15 +17,8 @@ type PromptType
     | Date
 
 
-type alias Option =
-    { type_ : PromptType
-    , message : String
-    , initial : String
-    }
-
-
-promptType2Str : PromptType -> String
-promptType2Str type_ =
+toString : PromptType -> String
+toString type_ =
     case type_ of
         Text ->
             "text"
@@ -59,22 +52,3 @@ promptType2Str type_ =
 
         Date ->
             "date"
-
-
-optionEncoder : Option -> JE.Value
-optionEncoder { type_, message, initial } =
-    JE.object
-        [ ( "type", JE.string <| promptType2Str type_ )
-        , ( "name", JE.string "value" )
-        , ( "message", JE.string message )
-        , ( "initial", JE.string initial )
-        ]
-
-
-option : PromptType -> String -> String -> JE.Value
-option type_ message initial =
-    { type_ = type_
-    , message = message
-    , initial = initial
-    }
-        |> optionEncoder

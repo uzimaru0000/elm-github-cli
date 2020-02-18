@@ -23,7 +23,7 @@ itemEncoder { title, value, description } =
 option : String -> List Item -> JE.Value
 option message choices =
     JE.object
-        [ ( "type", Prompts.promptType2Str Prompts.Select |> JE.string )
+        [ ( "type", Prompts.toString Prompts.Select |> JE.string )
         , ( "name", JE.string "value" )
         , ( "message", JE.string message )
         , ( "choices", JE.list itemEncoder choices )

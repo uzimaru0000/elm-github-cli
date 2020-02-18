@@ -1,10 +1,12 @@
 port module Main exposing (main)
 
+import Args exposing (Args)
 import Cli
 import GitHub
 import Http
 import Json.Decode as JD
 import Json.Encode as JE
+import Parser
 import Prompts.Select as Select
 import Prompts.Text as Text
 
@@ -15,7 +17,7 @@ type State
 
 
 type alias Model =
-    { args : List String
+    { args : Maybe Args
     , state : State
     }
 
@@ -28,15 +30,24 @@ type Msg
 
 
 type alias Flag =
-    List String
+    String
 
 
 init : Flag -> ( Model, Cmd Msg )
 init flags =
-    ( { args = flags
+    let
+        maybeArgs =
+            Args.fromString flags
+    in
+    ( { args = maybeArgs
       , state = InputUserName
       }
-    , output ( "", Text.option "Input user name : " )
+    , case maybeArgs of
+        Just args ->
+            GitHub.getRepositories args.userName GetRepositories
+
+        Nothing ->
+            output <| Text.option "Input User Name : "
     )
 
 
@@ -48,24 +59,34 @@ update msg model =
 
         GetRepositories (Ok repos) ->
             ( { model | state = SelectRepository }
-            , output
-                ( ""
-                , repos
-                    |> List.map repo2Item
-                    |> Select.option "Select Repositories"
-                )
+            , model.args
+                |> Maybe.andThen (.repoName >> findRepository repos)
+                |> Maybe.map
+                    (.htmlUrl
+                        >> Cli.text [ Cli.foreGroundColor Cli.Green ]
+                        >> Tuple.pair 0
+                        >> exitWithMsg
+                    )
+                |> Maybe.withDefault
+                    (repos
+                        |> List.map repo2Item
+                        |> Select.option "Select Repository : "
+                        |> output
+                    )
             )
 
         SelectedRepository url ->
             ( model
             , exitWithMsg
                 ( 0
-                , Cli.text [ Cli.foreGroundColor Cli.Green ] url ++ "\n"
+                , Cli.text [ Cli.foreGroundColor Cli.Green ] url
                 )
             )
 
         _ ->
-            ( model, exitWithMsg ( 1, "Error\n" ) )
+            ( model
+            , exitWithMsg ( 1, "Error" )
+            )
 
 
 repo2Item : GitHub.Repository -> Select.Item
@@ -76,19 +97,25 @@ repo2Item repo =
     }
 
 
+findRepository : List GitHub.Repository -> String -> Maybe GitHub.Repository
+findRepository list name =
+    list
+        |> List.filter (.name >> (==) name)
+        |> List.head
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    [ JD.decodeValue
-        (JD.string
-            |> JD.map
-                (case model.state of
-                    InputUserName ->
-                        InputUser
+    let
+        decoder =
+            case model.state of
+                InputUserName ->
+                    JD.map InputUser JD.string
 
-                    SelectRepository ->
-                        SelectedRepository
-                )
-        )
+                SelectRepository ->
+                    JD.map SelectedRepository JD.string
+    in
+    [ JD.decodeValue decoder
         >> Result.withDefault NoOp
         |> input
     ]
@@ -108,7 +135,7 @@ main =
 -- PORTS
 
 
-port output : ( String, JE.Value ) -> Cmd msg
+port output : JE.Value -> Cmd msg
 
 
 port exitWithMsg : ( Int, String ) -> Cmd msg

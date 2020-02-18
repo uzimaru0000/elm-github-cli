@@ -7,11 +7,11 @@ export namespace Elm {
     }
 
     interface Args {
-      flags: string[];
+      flags: string;
     }
 
     interface Ports {
-      output: Subscribe<[string, prompts.PromptObject<'value'>]>;
+      output: Subscribe<prompts.PromptObject<'value'>>;
       exitWithMsg: Subscribe<[number, string]>;
       input: Send<string>;
     }
